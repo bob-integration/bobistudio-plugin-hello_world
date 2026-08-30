@@ -1,0 +1,352 @@
+{
+  "license": "GPL-3.0-or-later",
+  "type": "hello_world",
+  "label": "Hello World",
+  "runtime": "docker",
+  "version": "0.1.0",
+  "description": "Plugin d'EXEMPLE : incruste « Hello World », un logo et les informations système sur l'image. Il n'existe pas pour sa fonction mais pour montrer le contrat — mode tranche, exposition aux macros, page publique, métriques. Référence exécutable de « Écrire un plugin », vérifiée en CI par tools/verif_plugin_hello_world.py.",
+  "badge": {
+    "label": "Hello",
+    "class": "mode-hello",
+    "oklch": "0.78 0.06 250"
+  },
+  "video_format": false,
+  "adapts_input": true,
+  "script_template": "script.py",
+  "nav": {
+    "section": "traitements",
+    "label": "Traitements",
+    "route": "/traitements/hello-world",
+    "order": 999
+  },
+  "ui": {
+    "control_html": "control.html",
+    "control_js": "control.js",
+    "control_css": "control.css",
+    "public_page": true
+  },
+  "deploy_defaults": {
+    "input_shm": null,
+    "texte": "Hello World",
+    "overlay_on": true,
+    "width": 1920,
+    "height": 1080,
+    "fps": 25,
+    "slice_mode": true,
+    "slice_lines": 36,
+    "log_level": "info",
+    "audio_shm": null,
+    "anc_shm": null,
+    "fond": "foret",
+    "pip_on": true,
+    "coefficient_omega": 0,
+    "tally_label_col": 0,
+    "tally_level": 0,
+    "format": "",
+    "fuseau": "UTC",
+    "dispo": {
+      "pip": {
+        "x": 0.74,
+        "y": 0.74,
+        "w": 0.25,
+        "h": 0.26
+      },
+      "vu": {
+        "h": 0.248,
+        "w": 0.047,
+        "x": 0.676,
+        "y": 0.752
+      },
+      "texte": {
+        "h": 0.38,
+        "w": 0.46,
+        "x": 0.02,
+        "y": 0.3
+      }
+    }
+  },
+  "config_schema": [
+    {
+      "key": "format",
+      "type": "select",
+      "label": "Format de sortie (sans entrée câblée)",
+      "default": "",
+      "help": "Choisi dans la liste de Réglages → Vidéo. On ne saisit pas des pixels : un 1920×1080 écrit à la main ne dit rien du scan ni de la profondeur. Utilisé UNIQUEMENT quand aucune entrée n'est câblée — avec une source, le format vient du flux.",
+      "options_from": "video_formats"
+    },
+    {
+      "key": "slice_mode",
+      "type": "bool",
+      "label": "Mode tranche",
+      "default": true,
+      "hidden": true,
+      "help": "Caché À DESSEIN : le réglage qui compte est le commutateur global Réglages → Vidéo."
+    },
+    {
+      "key": "log_level",
+      "type": "select",
+      "label": "Niveau de journal",
+      "default": "info",
+      "options": [
+        {
+          "value": "debug",
+          "label": "debug"
+        },
+        {
+          "value": "info",
+          "label": "info"
+        },
+        {
+          "value": "warning",
+          "label": "warning"
+        },
+        {
+          "value": "error",
+          "label": "error"
+        }
+      ]
+    },
+    {
+      "key": "tally_label_col",
+      "type": "select",
+      "label": "Libellé de source à afficher",
+      "default": "0",
+      "options": [
+        {
+          "value": "0",
+          "label": "Nom du conteneur source"
+        },
+        {
+          "value": "1",
+          "label": "Nom du flux MXL"
+        },
+        {
+          "value": "2",
+          "label": "Libellé 2 (table des sources)"
+        },
+        {
+          "value": "3",
+          "label": "Libellé 3 (table des sources)"
+        },
+        {
+          "value": "4",
+          "label": "Libellé 4 (table des sources)"
+        },
+        {
+          "value": "5",
+          "label": "Libellé 5 (table des sources)"
+        },
+        {
+          "value": "6",
+          "label": "Libellé 6 (table des sources)"
+        },
+        {
+          "value": "7",
+          "label": "Libellé 7 (table des sources)"
+        },
+        {
+          "value": "8",
+          "label": "Libellé 8 (table des sources)"
+        },
+        {
+          "value": "9",
+          "label": "Libellé 9 (table des sources)"
+        }
+      ],
+      "help": "Quelle colonne de la table des sources fournit le texte. ⚠ Ce réglage est lu par l'ORCHESTRATEUR (hook tally_targets), pas par le conteneur : il n'a d'effet qu'au redéploiement, contrairement aux réglages de la page."
+    },
+    {
+      "key": "tally_level",
+      "type": "select",
+      "label": "Niveau de tally suivi",
+      "default": "0",
+      "options": [
+        {
+          "value": "0",
+          "label": "Celui du projet"
+        },
+        {
+          "value": "1",
+          "label": "Niveau 1"
+        },
+        {
+          "value": "2",
+          "label": "Niveau 2"
+        },
+        {
+          "value": "3",
+          "label": "Niveau 3"
+        },
+        {
+          "value": "4",
+          "label": "Niveau 4"
+        }
+      ],
+      "help": "Quel niveau TSL colore les pastilles. 0 = hérité du projet du conteneur. Lu par l'orchestrateur, comme le libellé."
+    }
+  ],
+  "wiring": {
+    "consumes": [
+      {
+        "essence": "video",
+        "slot": 0,
+        "state_field": "input_shm",
+        "label": "Source vidéo (affichée en PiP)",
+        "optional": true
+      },
+      {
+        "essence": "audio",
+        "slot": 1,
+        "state_field": "audio_shm",
+        "label": "Source audio (vu-mètre)",
+        "optional": true
+      },
+      {
+        "essence": "data",
+        "slot": 2,
+        "state_field": "anc_shm",
+        "label": "Auxiliaire ANC 2110-40 (timecode)",
+        "optional": true
+      }
+    ],
+    "produces": [
+      {
+        "essence": "video",
+        "shm": "{hostname}_hello"
+      },
+      {
+        "essence": "audio",
+        "shm": "{hostname}_hello_audio"
+      },
+      {
+        "essence": "data",
+        "shm": "{hostname}_hello_anc"
+      }
+    ],
+    "mode": "hot-wire",
+    "state_endpoint": "/state"
+  },
+  "control": {
+    "endpoints": [
+      "/state",
+      "/params",
+      "/input",
+      "/reset",
+      "/overlay",
+      "/fond",
+      "/pip",
+      "/couleurs",
+      "/log_level",
+      "/dispo"
+    ],
+    "read_endpoints": [
+      "/state",
+      "/couleurs",
+      "/dispo"
+    ]
+  },
+  "param_tree": {
+    "global_groups": [
+      {
+        "label": "Incrustation",
+        "endpoint": "/params",
+        "path_prefix": "params",
+        "fields": {
+          "fond": {
+            "label": "Couleur de fond",
+            "type": "enum",
+            "options": [
+              "ardoise",
+              "nuit",
+              "foret",
+              "bordeaux",
+              "graphite"
+            ],
+            "default": "foret"
+          },
+          "coefficient_omega": {
+            "label": "Coefficient oméga",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "default": 0
+          }
+        }
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "fond",
+      "label": "Changer la couleur de fond",
+      "endpoint": "/fond",
+      "params": [
+        {
+          "key": "couleur",
+          "label": "Couleur",
+          "options_endpoint": "/couleurs"
+        }
+      ]
+    },
+    {
+      "id": "pip_on",
+      "label": "Afficher le PiP",
+      "endpoint": "/pip",
+      "body": {
+        "on": true
+      }
+    },
+    {
+      "id": "pip_off",
+      "label": "Masquer le PiP",
+      "endpoint": "/pip",
+      "body": {
+        "on": false
+      }
+    },
+    {
+      "id": "overlay_on",
+      "label": "Afficher l'incrustation",
+      "endpoint": "/overlay",
+      "body": {
+        "on": true
+      }
+    },
+    {
+      "id": "overlay_off",
+      "label": "Masquer l'incrustation",
+      "endpoint": "/overlay",
+      "body": {
+        "on": false
+      }
+    },
+    {
+      "id": "texte",
+      "label": "Changer le texte",
+      "endpoint": "/params",
+      "params": [
+        {
+          "key": "texte",
+          "label": "Texte",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "reset",
+      "label": "Revenir aux valeurs par défaut",
+      "endpoint": "/reset",
+      "body": {}
+    },
+    {
+      "id": "dispo_defaut",
+      "label": "Rappeler la disposition par défaut",
+      "endpoint": "/dispo",
+      "body": {}
+    }
+  ],
+  "help": {
+    "category": "start",
+    "order": 5
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "changelog": [
+    {
+      "version": "0.1.0",
+      "date": "2026-08-29",
+      "notes": "Première version. Plugin d'EXEMPLE et référence exécutable du contrat : trois essences en entrée comme en sortie (vidéo, audio, ANC), mode tranche natif avec commit progressif, exposition aux macros (param_tree, actions, listes vivantes), page publique, hooks before_deploy / wire_followers / tally_targets, métriques d'observabilité et console bâtie sur le catalogue de contrôles.\n\nComposition : fond en dégradé, PiP de la source à son RAPPORT d'image (inscrit dans son rectangle, ancré en bas), cadre au tally, vu-mètres verticaux à deux canaux avec cuvette, timecode ANC, cartouche système qui réduit son échelle pour tenir dans sa boîte, et heure au fuseau de l'orchestrateur.\n\nÉditeur de disposition : PiP, vu-mètres et cartouche se placent et se dimensionnent librement (rectangles normalisés `dispo`). Toute la géométrie — alignements, égalisation, répartition, aimantage, sélection multiple — vient du moteur partagé static/js/layout_engine.js, jamais d'une copie locale. Un PiP hors du bord bas ne fait PAS retomber la sortie en image entière : il est servi depuis la trame précédente, complète, et la sortie reste tranchée — le coût passe d'une trame de latence sur tout le signal à une trame de retard sur la seule vignette, comptée par `pip_retard_trames`.\n\nConsole zonée par nature de réglage, avec la frontière chaud / redéploiement énoncée en toutes lettres. Compteur `slices_incompletes` : une trame publiée tronquée ne passe pas inaperçue. Tourne sans aucune entrée câblée pour servir de test de fumée. Vérifié par tools/verif_plugin_hello_world.py en CI."
+    }
+  ]
+}

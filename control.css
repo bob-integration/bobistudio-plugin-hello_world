@@ -1,0 +1,83 @@
+/* Console of the hello_world example plugin.
+   ⚠ The product's input styles are scoped to `.form`. Outside a `.form` — here,
+   in a plugin panel — the browser applies ITS defaults, hence black text that is
+   unreadable on the dark theme. Hence `.ctl-input` on the text field: the same
+   values as `.form input`, usable anywhere. */
+.hw-wrap { display: flex; flex-direction: column; gap: var(--space-3); }
+.hw-note { color: var(--text-muted); font-size: 0.9em; margin: 0; }
+
+/* ── Zoning ────────────────────────────────────────────────────────────────
+   One section per NATURE of setting. Surfaces are separated by background
+   contrast and a 1px border — no shadow: depth is tonal (charter, "Flat by
+   Default"). The heading follows the "Section title" step: 0.78em, uppercase,
+   1.2px letter-spacing, `text-muted`. */
+.hw-sec { display: flex; flex-direction: column; gap: var(--space-2);
+          padding: var(--space-3); border: 1px solid var(--border);
+          border-radius: var(--radius); background: var(--bg-elev); }
+.hw-sec-t { margin: 0; font-size: 0.78em; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.2px; color: var(--text-muted); }
+/* ⚠ THE BOUNDARY THAT MATTERS — live on one side, redeployment on the other —
+   is carried by the section's TITLE and by its warning sentence, not by a surface
+   of a different tint. A section with a different background reads as a section of
+   a different NATURE (disabled, read-only, in alert): that is the product's tonal
+   vocabulary, and borrowing it to say "careful" blurs the two. The text already
+   says it, and it says it without depending on colour. */
+.hw-switches { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.hw-pied-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.hw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-2); }
+.hw-cell { display: flex; flex-direction: column; gap: 2px; padding: var(--space-2);
+           border: 1px solid var(--border); border-radius: var(--radius); }
+.hw-cell span { color: var(--text-muted); font-size: 0.78em; text-transform: uppercase; letter-spacing: .04em; }
+.hw-cell b { font-family: var(--font-mono); font-size: 0.95em; }
+.hw-vide { color: var(--text-muted); font-style: italic; }
+.hw-controles { display: flex; flex-direction: column; gap: var(--space-2); max-width: 420px; }
+.hw-controles label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
+.hw-controles input[type="range"] { width: 100%; }
+/* A disabled control (public link) stays VISIBLE: hiding it would look like a
+   bug, greying it out explains itself. */
+.hw-sec :disabled, .hw-pied-actions :disabled { opacity: .5; cursor: not-allowed; }
+/* The easter egg lives on the PAGE, not in the deployment palette: a setting you
+   adjust live has no business in a creation form. */
+.hw-omega small { color: var(--text-muted); font-size: 0.8em; }
+/* ── Layout editor ─────────────────────────────────────────────────────────
+   The scene is a 16:9 FRAME, not a picture: it represents the output's aspect,
+   not its content. A video preview here would cost one more stream for something
+   the operator already has in front of them in the monitoring panel. */
+.hw-lay { display: flex; flex-direction: column; gap: var(--space-2); max-width: 560px; }
+.hw-lay-outils { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.hw-lay-scene { position: relative; aspect-ratio: 16 / 9; width: 100%;
+                border: 1px solid var(--border); border-radius: var(--radius);
+                background: var(--bg-alt); overflow: hidden; touch-action: none;
+                cursor: default; }
+.hw-lay-scene:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hw-lay-box { position: absolute; box-sizing: border-box; cursor: move;
+              border: 1px solid var(--text-muted); border-radius: 3px;
+              background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+              display: flex; align-items: flex-start; }
+.hw-lay-box.sel { border-color: var(--accent);
+                  background: color-mix(in srgb, var(--accent) 18%, transparent); }
+/* The alignment REFERENCE is distinguished from the other selected items:
+   without that mark, "align left" looks like it picks its target at random. */
+.hw-lay-box.prim { border-width: 2px; box-shadow: 0 0 0 1px var(--accent) inset; }
+.hw-lay-nom { font-size: 0.72em; padding: 1px 4px; color: var(--text-muted);
+              pointer-events: none; user-select: none; white-space: nowrap; }
+.hw-lay-box.sel .hw-lay-nom { color: var(--text); }
+.hw-lay-poignee { position: absolute; right: -4px; bottom: -4px; width: 10px; height: 10px;
+                  border: 1px solid var(--accent); border-radius: 2px;
+                  background: var(--bg); cursor: nwse-resize; opacity: 0; }
+.hw-lay-box.sel .hw-lay-poignee, .hw-lay-box:hover .hw-lay-poignee { opacity: 1; }
+/* The guide says WHAT the element has just snapped to. Snapping without showing
+   it gives a rectangle that "jumps" for no visible reason. */
+.hw-lay-guide { position: absolute; background: var(--accent); pointer-events: none; }
+.hw-lay-guide--v { top: 0; bottom: 0; width: 1px; }
+.hw-lay-guide--h { left: 0; right: 0; height: 1px; }
+.hw-lay-pied { display: flex; flex-direction: column; gap: 2px; }
+.hw-lay-tranche { font-size: 0.8em; min-height: 1.2em; }
+.hw-lay-tranche.ok { color: var(--status-running-fg); }
+.hw-lay-tranche.att { color: var(--status-warning-fg); }
+.hw-aide { color: var(--text-muted); font-size: 0.8em; }
+.hw-temoins { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.hw-led { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85em; }
+.hw-repli { color: var(--status-warning-fg); font-size: 0.85em; min-height: 1.2em; }
+.hw-omega-bloc { display: flex; align-items: center; gap: var(--space-3); }
+.hw-jauge { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
