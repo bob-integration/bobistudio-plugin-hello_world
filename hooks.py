@@ -70,10 +70,12 @@ def tally_targets(params, context):
     # The "only one" case is just the one-element list — not a different kind of setting.
     # A scalar is still accepted so a container configured before 0.2.0 keeps working
     # without a resave.
+    # ⚠ THESE ARE OPAQUE IDENTITIES (level UUIDs), not numbers. The number shown in the UI is
+    # a DISPLAY RANK: reordering the levels rewrites it, so a configuration that had memorised
+    # it would afterwards point at a different level — silently, on an on-air function.
     def _niveaux(v):
-        if isinstance(v, list):
-            return [int(x) for x in v if str(x).strip() not in ("", "0")]
-        return [int(v)] if str(v or "").strip() not in ("", "0") else []
+        vals = v if isinstance(v, list) else ([v] if v not in (None, "", 0, "0") else [])
+        return [str(x).strip() for x in vals if str(x or "").strip() not in ("", "0")]
     niveaux_defaut = _niveaux(p.get("tally_level"))
     cibles = []
     for cle, champ in (("video", "input_shm"), ("audio", "audio_shm"), ("anc", "anc_shm")):
@@ -153,8 +155,9 @@ def before_deploy(params, context):
         from app.database import db_get_tally_levels
         vus = p.get("tally_level")
         vus = vus if isinstance(vus, list) else ([vus] if vus else [])
-        tous = {str(n["id"]): (n.get("nom") or "") for n in (db_get_tally_levels() or [])}
-        p["tally_level_noms"] = {str(n): tous.get(str(n), "") for n in vus}
+        tous = {n["uuid"]: "%d — %s" % (n.get("num") or 0, n.get("nom") or "?")
+                for n in (db_get_tally_levels() or [])}
+        p["tally_level_noms"] = {str(n): tous.get(str(n), "?") for n in vus}
     except Exception:
         p["tally_level_noms"] = {}
     # The orchestrator's time zone travels with the params: it is the only way for

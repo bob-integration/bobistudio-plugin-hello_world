@@ -82,9 +82,11 @@ _niv = CONFIG.get("tally_level") or []
 if not isinstance(_niv, list):
     _niv = [_niv] if _niv else []            # a container configured before 0.2.0
 _NOMS_NIV = CONFIG.get("tally_level_noms") or {{}}
+# The injected map is {{uuid: "<num> — <name>"}}: the container shows what the operator reads
+# on screen, and never the UUID, which would mean nothing to anyone looking at a video wall.
 _NOM_NIV = _t("niveaux : %s", "levels: %s") % (
     _t("ceux du projet", "the project's") if not _niv
-    else ", ".join("%s — %s" % (n, _NOMS_NIV.get(str(n)) or "?") for n in _niv))
+    else ", ".join(_NOMS_NIV.get(str(n)) or "?" for n in _niv))
 
 SHM_VIDEO = HOSTNAME + "_hello"
 SHM_AUDIO = HOSTNAME + "_hello_audio"
