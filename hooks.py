@@ -65,7 +65,16 @@ def tally_targets(params, context):
     # a control that moves without anything changing, which is worse than no control
     # at all.
     col = int(p.get("tally_label_col") or 0)
-    niveau_defaut = int(p.get("tally_level") or 0)
+    # ★ A LIST OF LEVELS, NOT ONE. Tally ACCUMULATES: the same source can be followed on
+    # several destination chains at once, and a scalar forced a choice of which one counts.
+    # The "only one" case is just the one-element list — not a different kind of setting.
+    # A scalar is still accepted so a container configured before 0.2.0 keeps working
+    # without a resave.
+    def _niveaux(v):
+        if isinstance(v, list):
+            return [int(x) for x in v if str(x).strip() not in ("", "0")]
+        return [int(v)] if str(v or "").strip() not in ("", "0") else []
+    niveaux_defaut = _niveaux(p.get("tally_level"))
     cibles = []
     for cle, champ in (("video", "input_shm"), ("audio", "audio_shm"), ("anc", "anc_shm")):
         shm = (p.get(champ) or "").strip()
@@ -74,10 +83,10 @@ def tally_targets(params, context):
         cibles.append({
             "cle": cle,
             "shm": shm,
-            # Explicit level, otherwise the project's (resolved by the distributor).
-            # Per-essence override when there is one, otherwise the common level,
-            # otherwise 0 → the distributor takes the project's.
-            "niveau": int(p.get("tally_level_%s" % cle) or niveau_defaut or 0),
+            # Explicit levels, otherwise the project's (resolved by the distributor).
+            # Per-essence override when there is one, otherwise the common list,
+            # otherwise [] → the distributor takes the project's.
+            "niveau": _niveaux(p.get("tally_level_%s" % cle)) or niveaux_defaut,
             "label_col": col,
         })
     return cibles
@@ -135,6 +144,19 @@ def before_deploy(params, context):
     except Exception:
         pass                       # never block a deployment over an overlay
     p["formats_dispo"] = [l.split(";")[0].strip() for l in lignes]
+    # ★ THE NAMES OF THE TALLY LEVELS TRAVEL WITH THE PARAMS — same reason as the time zone
+    # just below: the container cannot reach the orchestrator's tables, and a bare number
+    # ("level 7") sends the reader off to another page to find out what it stands for. We
+    # inject only the names of the levels this container actually follows: shipping the whole
+    # site's list would go stale on the first rename and grow with every new production.
+    try:
+        from app.database import db_get_tally_levels
+        vus = p.get("tally_level")
+        vus = vus if isinstance(vus, list) else ([vus] if vus else [])
+        tous = {str(n["id"]): (n.get("nom") or "") for n in (db_get_tally_levels() or [])}
+        p["tally_level_noms"] = {str(n): tous.get(str(n), "") for n in vus}
+    except Exception:
+        p["tally_level_noms"] = {}
     # The orchestrator's time zone travels with the params: it is the only way for
     # the container, which runs in UTC, to display the time the operator reads.
     p["fuseau"] = _fuseau_orchestrateur()

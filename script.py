@@ -73,9 +73,18 @@ _COLS = {{0: _t("conteneur source", "source container"),
 _NOM_COL = _t("libellé : %s", "label: %s") % _COLS.get(
     int(CONFIG.get("tally_label_col") or 0),
     _t("colonne %s", "column %s") % CONFIG.get("tally_label_col"))
-_niv = int(CONFIG.get("tally_level") or 0)
-_NOM_NIV = _t("niveau : %s", "level: %s") % (
-    (_t("celui du projet", "the project's") if not _niv else _niv))
+# ★ THE LEVELS ARE NAMED, AND THEY ARE A LIST. A tally level is an entity of the site
+# (Settings → Labels & Tally) with a name the operator wrote — "Antenne", "Plateau" — and a
+# source can be followed on SEVERAL of them at once, because tally ACCUMULATES. Showing the
+# raw number would send the reader off to another page to find out what it means, so
+# `before_deploy` injects the names: the orchestrator is the only side that knows them.
+_niv = CONFIG.get("tally_level") or []
+if not isinstance(_niv, list):
+    _niv = [_niv] if _niv else []            # a container configured before 0.2.0
+_NOMS_NIV = CONFIG.get("tally_level_noms") or {{}}
+_NOM_NIV = _t("niveaux : %s", "levels: %s") % (
+    _t("ceux du projet", "the project's") if not _niv
+    else ", ".join("%s — %s" % (n, _NOMS_NIV.get(str(n)) or "?") for n in _niv))
 
 SHM_VIDEO = HOSTNAME + "_hello"
 SHM_AUDIO = HOSTNAME + "_hello_audio"
