@@ -86,12 +86,7 @@
   "type.hello_world.cfg.tally_label_col.opt.7": "Label 7 (source table)",
   "type.hello_world.cfg.tally_label_col.opt.8": "Label 8 (source table)",
   "type.hello_world.cfg.tally_label_col.opt.9": "Label 9 (source table)",
-  "type.hello_world.cfg.tally_level.help": "Which TSL level colours the dots. 0 = inherited from the container's project. Read by the orchestrator, like the label.",
-  "type.hello_world.cfg.tally_level.label": "Tally level followed",
-  "type.hello_world.cfg.tally_level.opt.0": "The project's",
-  "type.hello_world.cfg.tally_level.opt.1": "Level 1",
-  "type.hello_world.cfg.tally_level.opt.2": "Level 2",
-  "type.hello_world.cfg.tally_level.opt.3": "Level 3",
-  "type.hello_world.cfg.tally_level.opt.4": "Level 4",
+  "type.hello_world.cfg.tally_level.help": "Which levels colour the dots. SEVERAL may be picked: tally accumulates, the same source being followable on several destination chains. No choice = the container's production. A level is a named entity of the site (Settings → Labels & Tally), not a band number from a protocol. Read by the orchestrator, like the label.",
+  "type.hello_world.cfg.tally_level.label": "Tally levels followed",
   "type.hello_world.label": "Hello World"
 }

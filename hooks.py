@@ -155,9 +155,13 @@ def before_deploy(params, context):
         from app.database import db_get_tally_levels
         vus = p.get("tally_level")
         vus = vus if isinstance(vus, list) else ([vus] if vus else [])
-        tous = {n["uuid"]: "%d — %s" % (n.get("num") or 0, n.get("nom") or "?")
-                for n in (db_get_tally_levels() or [])}
+        niveaux = db_get_tally_levels() or []
+        tous = {n["uuid"]: "%d — %s" % (n.get("num") or 0, n.get("nom") or "?") for n in niveaux}
         p["tally_level_noms"] = {str(n): tous.get(str(n), "?") for n in vus}
+        # ★ AND THE WHOLE LIST, for the chooser on the plugin's own page. Same pattern as
+        # `formats_dispo`: the container has no access to the orchestrator's tables, so the page
+        # would otherwise need its own route — which would then fail behind a public token.
+        p["tally_levels_dispo"] = [{"uuid": n["uuid"], "label": tous[n["uuid"]]} for n in niveaux]
     except Exception:
         p["tally_level_noms"] = {}
     # The orchestrator's time zone travels with the params: it is the only way for

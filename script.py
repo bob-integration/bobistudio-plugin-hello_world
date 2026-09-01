@@ -998,7 +998,16 @@ class Controle(BaseHTTPRequestHandler):
             st["formats_dispo"] = list(CONFIG.get("formats_dispo") or [])
             st["format"] = CONFIG.get("format") or ""
             st["tally_label_col"] = int(CONFIG.get("tally_label_col") or 0)
-            st["tally_level"] = int(CONFIG.get("tally_level") or 0)
+            # ⚠ A LIST, NOT A NUMBER — and `int()` here RAISED as soon as a level was
+            # assigned, which took down the whole /state answer. Tally levels became opaque
+            # identities (UUIDs) that ACCUMULATE: a source can be followed on several
+            # destination chains at once.
+            _tl = CONFIG.get("tally_level") or []
+            st["tally_level"] = list(_tl) if isinstance(_tl, list) else ([_tl] if _tl else [])
+            # ★ THE CHOOSER'S LIST COMES FROM THE CONTAINER, which has it from the
+            # orchestrator (`before_deploy`) — same pattern as `formats_dispo`. The page needs
+            # no extra route, and it keeps working behind a public token, which is read-only.
+            st["tally_levels_dispo"] = list(CONFIG.get("tally_levels_dispo") or [])
             a = _etat_tally()
             st["tally_age_s"] = None if a is None else round(a, 1)
             return self._repondre(200, st)

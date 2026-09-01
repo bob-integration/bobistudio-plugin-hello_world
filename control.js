@@ -146,8 +146,10 @@
             <label>${esc(T("t_col", "Libellé de source à afficher"))}
               <select id="hw-tcol" class="ctl-input"></select>
             </label>
-            <label>${esc(T("t_niv", "Niveau de tally suivi"))}
-              <select id="hw-tniv" class="ctl-input"></select>
+            <label>${esc(T("t_niv", "Niveaux de tally suivis"))}
+              <select id="hw-tniv" class="ctl-input" multiple size="4"></select>
+              <small class="hw-hint">${esc(T("t_niv_aide",
+                "Plusieurs choix possibles — le tally se cumule. Aucun = ceux de la production."))}</small>
             </label>
           </div>
         </section>
@@ -215,10 +217,10 @@
     };
     const COLS = [["0", T("col0", "Nom du conteneur source")], ["1", T("col1", "Nom du flux MXL")]]
       .concat([2, 3, 4, 5, 6, 7, 8, 9].map((i) => [String(i), T("coln", "Libellé {n}").replace("{n}", i)]));
-    const NIVS = [["0", T("niv0", "Celui du projet")]]
-      .concat([1, 2, 3, 4].map((i) => [String(i), T("nivn", "Niveau {n}").replace("{n}", i)]));
     opts($("hw-tcol"), COLS, 0);
-    opts($("hw-tniv"), NIVS, 0);
+    // ★ NO STATIC LIST OF LEVELS ANY MORE. It used to be [0,1,2,3,4] — band numbers from the
+    // TSL frame, frozen in the page. Levels are named entities of the site now, they come from
+    // /state (see `majEtat`), and there can be any number of them.
     const envoyerConfig = async (cle, valeur) => {
       const url = apiConteneur("/plugin_config");
       if (!url) { TOAST(T("lecture_seule", "Lien public : lecture seule")); return; }
@@ -235,7 +237,10 @@
     // route, and it works identically behind a public token (read-only).
     $("hw-fmt").addEventListener("change", (e) => envoyerConfig("format", e.target.value));
     $("hw-tcol").addEventListener("change", (e) => envoyerConfig("tally_label_col", e.target.value));
-    $("hw-tniv").addEventListener("change", (e) => envoyerConfig("tally_level", e.target.value));
+    // A LIST, because tally accumulates: the same source can be followed on several
+    // destination chains. Sending `e.target.value` would send only the FIRST option picked.
+    $("hw-tniv").addEventListener("change", (e) =>
+      envoyerConfig("tally_level", [...e.target.selectedOptions].map((o) => o.value)));
 
     // The catalogue provides the "return to default" button and ALL the gestures.
     if (window.MXLControls) window.MXLControls.attachKnobGestures(EL, T("reset", "Valeurs par défaut"));
@@ -508,7 +513,17 @@
     const tc = $("hw-tcol");
     if (tc && document.activeElement !== tc && s.tally_label_col != null) tc.value = String(s.tally_label_col);
     const tn = $("hw-tniv");
-    if (tn && document.activeElement !== tn && s.tally_level != null) tn.value = String(s.tally_level);
+    if (tn && document.activeElement !== tn) {
+      const dispo = s.tally_levels_dispo || [];
+      const sig = JSON.stringify(dispo);
+      if (tn.dataset.sig !== sig) {          // only re-render when the list changed
+        tn.dataset.sig = sig;
+        tn.innerHTML = dispo
+          .map((n) => `<option value="${esc(n.uuid)}">${esc(n.label)}</option>`).join("");
+      }
+      const choisis = new Set((s.tally_level || []).map(String));
+      for (const o of tn.options) o.selected = choisis.has(o.value);
+    }
     if (s.dispo) poserDispo(s.dispo);
     // ★ THE GAUGE IS THE HINT. It fills from 0 to 10 — the team is ten people —
     // and the threshold mark sits at 100 %. Nowhere do we say what 10 triggers: a
