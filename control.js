@@ -167,9 +167,16 @@
                pendant longtemps c'en était vraiment une, pour rien.
                ⚠ AUCUN ACCENT GRAVE ICI : ce commentaire vit dans un gabarit JS, où un accent
                grave FERME la chaîne. -->
-          <h2 class="hw-sec-t">${esc(T("sec_chaud", "Réglages appliqués à chaud"))}</h2>
+<!-- ★ ON NOMME LE SUJET, PAS LE MÉCANISME. Cette section s'est d'abord appelée « Réglages
+               appliqués à chaud » : c'est le nom de la façon dont ils s'écrivent, pas de ce
+               dont ils parlent — et d'autres réglages de la page s'appliquent aussi à chaud, ce
+               qui rendait le titre trompeur. Le produit dit déjà « Labels & Tally » pour ce
+               sujet (groupe de Réglages) : on emploie le MÊME terme, sinon l'exploitant apprend
+               deux vocabulaires pour une seule chose. Le fait qu'ils n'exigent pas de
+               redéploiement est un DÉTAIL D'EXÉCUTION : sa place est dans l'aide, dessous. -->
+          <h2 class="hw-sec-t">${esc(T("sec_chaud", "Labels & Tally"))}</h2>
           <p class="hw-aide">${esc(T("t_aide_chaud",
-            "Lus par l'orchestrateur, jamais par le conteneur : ils prennent effet SANS redéployer, donc sans coupure. Seul le texte incrusté dans l'image attend le prochain déploiement."))}</p>
+            "Quel libellé afficher, et quels niveaux de tally suivre. Lus par l'orchestrateur, jamais par le conteneur : ils prennent effet sans redéployer, donc sans coupure. Seul le texte incrusté dans l'image attend le prochain déploiement."))}</p>
           <div class="hw-controles">
             <label>${esc(T("t_col", "Libellé de source à afficher"))}
               <select id="hw-tcol" class="ctl-input"></select>

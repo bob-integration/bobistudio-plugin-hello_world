@@ -3,7 +3,7 @@
   "type": "hello_world",
   "label": "Hello World",
   "runtime": "docker",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Plugin d'EXEMPLE : incruste « Hello World », un logo et les informations système sur l'image. Il n'existe pas pour sa fonction mais pour montrer le contrat — mode tranche, exposition aux macros, page publique, métriques. Référence exécutable de « Écrire un plugin », vérifiée en CI par tools/verif_plugin_hello_world.py.",
   "badge": {
     "label": "Hello",
