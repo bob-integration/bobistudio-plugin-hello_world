@@ -264,7 +264,13 @@
           const n = $("hw-tniv"); if (n) delete n.dataset.sig;
           return;
         }
-        TOAST(T("redeploye", "Réglage appliqué — plugin redéployé"));
+        // Le serveur DIT s'il a redéployé : l'annoncer à tort ferait craindre une coupure de
+        // flux à chaque case cochée, et l'annoncer jamais cacherait celle qui a vraiment lieu.
+        let j = {};
+        try { j = await r.json(); } catch (e) { /* réponse sans corps */ }
+        TOAST(j && j.redeploye === false
+              ? T("applique", "Réglage appliqué")
+              : T("redeploye", "Réglage appliqué — plugin redéployé"));
       } finally {
         _ecritureEnCours.delete(cle);
       }

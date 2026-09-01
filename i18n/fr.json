@@ -86,7 +86,7 @@
   "type.hello_world.cfg.tally_label_col.opt.7": "Libellé 7 (table des sources)",
   "type.hello_world.cfg.tally_label_col.opt.8": "Libellé 8 (table des sources)",
   "type.hello_world.cfg.tally_label_col.opt.9": "Libellé 9 (table des sources)",
-  "type.hello_world.cfg.tally_level.help": "Quels niveaux colorent les pastilles. PLUSIEURS CHOIX possibles : le tally se cumule, une même source pouvant être suivie sur plusieurs chaînes de destination. Aucun choix = ceux de la production du conteneur. Un niveau est une entité nommée du site (Réglages → Labels & Tally), pas un numéro de bande d'un protocole. Lu par l'orchestrateur, comme le libellé.",
+  "type.hello_world.cfg.tally_level.help": "Quels niveaux colorent les pastilles. PLUSIEURS CHOIX possibles : le tally se cumule, une même source pouvant être suivie sur plusieurs chaînes de destination. Aucun choix = ceux de la production du conteneur. Un niveau est une entité nommée du site (Réglages → Labels & Tally), pas un numéro de bande d'un protocole. ⚠ Lu par l'ORCHESTRATEUR, jamais par le conteneur : il s'applique À CHAUD, sans redéployer.",
   "type.hello_world.cfg.tally_level.label": "Niveaux de tally suivis",
   "type.hello_world.label": "Hello World"
 }

@@ -86,7 +86,7 @@
   "type.hello_world.cfg.tally_label_col.opt.7": "Label 7 (source table)",
   "type.hello_world.cfg.tally_label_col.opt.8": "Label 8 (source table)",
   "type.hello_world.cfg.tally_label_col.opt.9": "Label 9 (source table)",
-  "type.hello_world.cfg.tally_level.help": "Which levels colour the dots. SEVERAL may be picked: tally accumulates, the same source being followable on several destination chains. No choice = the container's production. A level is a named entity of the site (Settings → Labels & Tally), not a band number from a protocol. Read by the orchestrator, like the label.",
+  "type.hello_world.cfg.tally_level.help": "Which levels colour the dots. SEVERAL may be picked: tally accumulates, the same source being followable on several destination chains. No choice = the container's production. A level is a named entity of the site (Settings → Labels & Tally), not a band number from a protocol. ⚠ Read by the ORCHESTRATOR, never by the container: it applies LIVE, without redeploying.",
   "type.hello_world.cfg.tally_level.label": "Tally levels followed",
   "type.hello_world.label": "Hello World"
 }
