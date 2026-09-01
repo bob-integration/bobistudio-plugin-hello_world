@@ -32,6 +32,11 @@
 .hw-vide { color: var(--text-muted); font-style: italic; }
 .hw-controles { display: flex; flex-direction: column; gap: var(--space-2); max-width: 420px; }
 .hw-controles label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
+/* Même mise en forme qu'un `label`, sans en être un. Un <label> renvoie tout clic vers le premier
+   contrôle qu'il contient : autour d'une liste de puces à croix, cliquer À CÔTÉ supprimait la
+   première. Il convient à un champ unique, pas à une liste d'actions. */
+.hw-controles .hw-champ { display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
+.hw-controles .hw-champ-t { color: inherit; }
 .hw-controles input[type="range"] { width: 100%; }
 /* A disabled control (public link) stays VISIBLE: hiding it would look like a
    bug, greying it out explains itself. */

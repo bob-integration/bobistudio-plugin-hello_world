@@ -174,11 +174,17 @@
             <label>${esc(T("t_col", "Libellé de source à afficher"))}
               <select id="hw-tcol" class="ctl-input"></select>
             </label>
-            <label>${esc(T("t_niv", "Niveaux de tally suivis"))}
+<!-- ⚠ PAS DE <label> AUTOUR D'UN CONTRÔLE À PLUSIEURS BOUTONS. Un <label> sans « for »
+                 renvoie TOUT clic vers le premier contrôle qu'il contient — ici la croix de la
+                 PREMIÈRE puce. Cliquer à côté d'une puce supprimait donc le premier niveau, ce
+                 qui donnait l'impression que le contrôle retirait n'importe quoi. Un <label>
+                 convient à un champ unique (le menu juste au-dessus), pas à une liste d'actions. -->
+            <div class="hw-champ">
+              <span class="hw-champ-t">${esc(T("t_niv", "Niveaux de tally suivis"))}</span>
               <div id="hw-tniv"></div>
               <small class="hw-hint">${esc(T("t_niv_aide",
                 "Plusieurs choix possibles — le tally se cumule. Aucun = ceux de la production."))}</small>
-            </label>
+            </div>
           </div>
         </section>
 
