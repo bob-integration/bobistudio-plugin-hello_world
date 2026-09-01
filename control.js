@@ -18,6 +18,11 @@
 // and that will drift visually at the first theme change. The living inventory is
 // under Settings → Controls. Before creating a new one: ask.
 (function () {
+  // ⚠ PORTÉE DU MODULE, PAS D'UNE FONCTION. Le drapeau « une écriture est en cours » est posé
+  // dans `gabarit()` et lu dans `rendreEtat()` : deux fonctions sœurs. Un `const` déclaré dans
+  // l'une n'existe pas dans l'autre — la référence LÈVE, et c'est toute la mise à jour d'état
+  // qui tombe. (Même piège que la locale orpheline d'un gabarit : `node --check` n'y voit rien.)
+  const _ecritureEnCours = new Set();
   "use strict";
 
   let EL = null, VMID = null, TOAST = () => {};
@@ -221,15 +226,57 @@
     // ★ NO STATIC LIST OF LEVELS ANY MORE. It used to be [0,1,2,3,4] — band numbers from the
     // TSL frame, frozen in the page. Levels are named entities of the site now, they come from
     // /state (see `majEtat`), and there can be any number of them.
-    const envoyerConfig = async (cle, valeur) => {
+    // ★ ON GROUPE LES GESTES, ET ON RÉESSAIE SUR 409.
+    //
+    // Chaque écriture ici REDÉPLOIE le conteneur, et l'orchestrateur refuse un second
+    // déploiement tant que le premier est en vol (`_plugin_config_pending` → 409). Une
+    // sélection multiple s'édite par gestes SUCCESSIFS : trois niveaux choisis coup sur coup
+    // faisaient trois POST, dont deux repartaient en 409 — perdus, alors que les trois puces
+    // restaient à l'écran. On croyait avoir réglé trois niveaux, un seul était persisté, et le
+    // retrait suivant révélait la vérité en faisant « disparaître » les autres.
+    // (Signalé le 2026-09-01 : « j'ai ajouté les 3 niveaux, supprimé le 1, et le 2 s'est
+    // supprimé aussi ».)
+    //
+    // Deux corrections, et il faut les deux : on ATTEND que les gestes se calment avant
+    // d'envoyer (une rafale devient un seul déploiement), et on RÉESSAIE si un déploiement
+    // venu d'ailleurs occupe la place. Un échec définitif RESYNCHRONISE l'affichage sur
+    // l'état réel — laisser une valeur optimiste à l'écran est ce qui a rendu ce défaut si
+    // difficile à voir.
+    const ATTENTE_MS = 500, ESSAIS_409 = 6;
+    const _enAttente = {};          // clé → timer
+
+    const _poster = async (cle, valeur, reste) => {
       const url = apiConteneur("/plugin_config");
       if (!url) { TOAST(T("lecture_seule", "Lien public : lecture seule")); return; }
-      const r = await fetch(url, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ params: { [cle]: valeur } }),
-      });
-      if (!r.ok) { TOAST(T("echec", "Échec : HTTP {c}").replace("{c}", r.status)); return; }
-      TOAST(T("redeploye", "Réglage appliqué — plugin redéployé"));
+      _ecritureEnCours.add(cle);
+      try {
+        const r = await fetch(url, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ params: { [cle]: valeur } }),
+        });
+        if (r.status === 409 && reste > 0) {
+          setTimeout(() => _poster(cle, valeur, reste - 1), 700);
+          return;                   // on garde la clé « en vol » : rien ne doit la doubler
+        }
+        if (!r.ok) {
+          TOAST(T("echec", "Échec : HTTP {c}").replace("{c}", r.status));
+          // On force la resynchronisation : l'écran doit montrer ce qui est VRAIMENT enregistré.
+          const n = $("hw-tniv"); if (n) delete n.dataset.sig;
+          return;
+        }
+        TOAST(T("redeploye", "Réglage appliqué — plugin redéployé"));
+      } finally {
+        _ecritureEnCours.delete(cle);
+      }
+    };
+
+    const envoyerConfig = (cle, valeur) => {
+      clearTimeout(_enAttente[cle]);
+      _ecritureEnCours.add(cle);    // dès le PREMIER geste : l'affichage ne doit plus bouger
+      _enAttente[cle] = setTimeout(() => {
+        delete _enAttente[cle];
+        _poster(cle, valeur, ESSAIS_409);
+      }, ATTENTE_MS);
     };
     // ★ THE LIST COMES FROM THE CONTAINER, WHICH HAS IT FROM THE ORCHESTRATOR. The
     // container has no access to the Settings: `before_deploy` passes it the preset
@@ -514,7 +561,11 @@
     const tc = $("hw-tcol");
     if (tc && document.activeElement !== tc && s.tally_label_col != null) tc.value = String(s.tally_label_col);
     const tn = $("hw-tniv");
-    if (tn && !tn.contains(document.activeElement)) {
+    // ⚠ NE PAS REDESSINER TANT QU'UNE ÉCRITURE N'EST PAS PARTIE ET REVENUE. `/state` répond
+    // encore l'ANCIENNE valeur pendant le redéploiement : reconstruire le contrôle dessus
+    // ferait réapparaître ce qu'on vient de retirer, puis disparaître à nouveau.
+    if (tn && !tn.contains(document.activeElement)
+        && !_ecritureEnCours.has("tally_level")) {
       const dispo = (s.tally_levels_dispo || []).map((n) => ({value: n.uuid, label: n.label}));
       const sig = JSON.stringify([dispo, s.tally_level || []]);
       if (tn.dataset.sig !== sig) {          // on ne redessine que si quelque chose a bougé
