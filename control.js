@@ -147,7 +147,7 @@
               <select id="hw-tcol" class="ctl-input"></select>
             </label>
             <label>${esc(T("t_niv", "Niveaux de tally suivis"))}
-              <select id="hw-tniv" class="ctl-input" multiple size="4"></select>
+              <div id="hw-tniv"></div>
               <small class="hw-hint">${esc(T("t_niv_aide",
                 "Plusieurs choix possibles — le tally se cumule. Aucun = ceux de la production."))}</small>
             </label>
@@ -237,10 +237,11 @@
     // route, and it works identically behind a public token (read-only).
     $("hw-fmt").addEventListener("change", (e) => envoyerConfig("format", e.target.value));
     $("hw-tcol").addEventListener("change", (e) => envoyerConfig("tally_label_col", e.target.value));
-    // A LIST, because tally accumulates: the same source can be followed on several
-    // destination chains. Sending `e.target.value` would send only the FIRST option picked.
-    $("hw-tniv").addEventListener("change", (e) =>
-      envoyerConfig("tally_level", [...e.target.selectedOptions].map((o) => o.value)));
+    // ★ CONTRÔLE DU CATALOGUE (`MXLControls.chooseList`) : une liste déroulante pour ajouter,
+    // et ce qui est choisi s'affiche dessous en puces. Un `<select multiple>` tient à quatre
+    // niveaux ; à vingt il devient inutilisable — et un site en a autant qu'il a de chaînes de
+    // destination. Le contrôle est monté à la première mise à jour d'état, quand on connaît la
+    // liste (cf. `majEtat`).
 
     // The catalogue provides the "return to default" button and ALL the gestures.
     if (window.MXLControls) window.MXLControls.attachKnobGestures(EL, T("reset", "Valeurs par défaut"));
@@ -513,16 +514,21 @@
     const tc = $("hw-tcol");
     if (tc && document.activeElement !== tc && s.tally_label_col != null) tc.value = String(s.tally_label_col);
     const tn = $("hw-tniv");
-    if (tn && document.activeElement !== tn) {
-      const dispo = s.tally_levels_dispo || [];
-      const sig = JSON.stringify(dispo);
-      if (tn.dataset.sig !== sig) {          // only re-render when the list changed
+    if (tn && !tn.contains(document.activeElement)) {
+      const dispo = (s.tally_levels_dispo || []).map((n) => ({value: n.uuid, label: n.label}));
+      const sig = JSON.stringify([dispo, s.tally_level || []]);
+      if (tn.dataset.sig !== sig) {          // on ne redessine que si quelque chose a bougé
         tn.dataset.sig = sig;
-        tn.innerHTML = dispo
-          .map((n) => `<option value="${esc(n.uuid)}">${esc(n.label)}</option>`).join("");
+        window.MXLControls.chooseList(tn, {
+          options: dispo,
+          valeurs: s.tally_level || [],
+          vide: T("t_niv_vide", "— ceux de la production —"),
+          ajouter: T("t_niv_ajout", "+ Ajouter un niveau…"),
+          tout: T("t_niv_tout", "tous les niveaux sont choisis"),
+          retirer: T("t_niv_retirer", "Retirer"),
+          onChange: (v) => envoyerConfig("tally_level", v),
+        });
       }
-      const choisis = new Set((s.tally_level || []).map(String));
-      for (const o of tn.options) o.selected = choisis.has(o.value);
     }
     if (s.dispo) poserDispo(s.dispo);
     // ★ THE GAUGE IS THE HINT. It fills from 0 to 10 — the team is ten people —
