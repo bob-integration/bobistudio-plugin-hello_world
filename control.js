@@ -141,13 +141,28 @@
         </section>
 
         <section class="hw-sec" id="hw-redeploy">
-          <h2 class="hw-sec-t">${esc(T("sec_deploy", "Réglages qui redéploient"))}</h2>
+<h2 class="hw-sec-t">${esc(T("sec_deploy", "Réglage qui redéploie"))}</h2>
           <p class="hw-aide">${esc(T("t_aide",
-            "Ces trois réglages sont lus par l'orchestrateur, pas par le conteneur : les changer REDÉPLOIE le plugin (brève coupure)."))}</p>
+            "Le conteneur lit ce réglage à son DÉMARRAGE : le changer redéploie le plugin (brève coupure)."))}</p>
           <div class="hw-controles">
             <label>${esc(T("fmt", "Format de sortie (sans entrée câblée)"))}
               <select id="hw-fmt" class="ctl-input"></select>
             </label>
+          </div>
+        </section>
+
+        <section class="hw-sec">
+          <!-- ★ DEUX SECTIONS, PARCE QUE CE SONT DEUX COMPORTEMENTS. Ces réglages-ci ne sont
+               jamais lus par le conteneur : c'est l'ORCHESTRATEUR qui les consulte (distributeur
+               TSL, hook « tally_targets »), à chaque tour, dans « deploy_config ». Les ranger
+               avec le format faisait craindre une coupure de flux à chaque case cochée — et
+               pendant longtemps c'en était vraiment une, pour rien.
+               ⚠ AUCUN ACCENT GRAVE ICI : ce commentaire vit dans un gabarit JS, où un accent
+               grave FERME la chaîne. -->
+          <h2 class="hw-sec-t">${esc(T("sec_chaud", "Réglages appliqués à chaud"))}</h2>
+          <p class="hw-aide">${esc(T("t_aide_chaud",
+            "Lus par l'orchestrateur, jamais par le conteneur : ils prennent effet SANS redéployer, donc sans coupure. Seul le texte incrusté dans l'image attend le prochain déploiement."))}</p>
+          <div class="hw-controles">
             <label>${esc(T("t_col", "Libellé de source à afficher"))}
               <select id="hw-tcol" class="ctl-input"></select>
             </label>
