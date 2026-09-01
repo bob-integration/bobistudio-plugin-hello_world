@@ -99,7 +99,7 @@ décoller le PiP du bord bas, élargir le cartouche — montre son coût au lieu
 
 ## Le garde-fou
 
-`tools/verif_plugin_hello_world.py` — qui vit dans le
+`tests/verif_plugin_hello_world.py` — qui vit dans le
 [dépôt Bobi.Studio](https://github.com/bob-integration/bobistudio), pas ici — passe 30 contrôles
 sur ce plugin en intégration continue : le gabarit se rend *et compile*, le mode tranche est
 actif, les macros sont atteignables, les métriques sont déclarées *et* mises à jour, les trois

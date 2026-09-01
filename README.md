@@ -97,7 +97,7 @@ the PiP off the bottom edge, widening the info panel — shows its cost instead 
 
 ## The guard rail
 
-`tools/verif_plugin_hello_world.py` — which lives in the
+`tests/verif_plugin_hello_world.py` — which lives in the
 [Bobi.Studio repository](https://github.com/bob-integration/bobistudio), not here — runs 30
 checks against this plugin in continuous integration: the template renders *and compiles*, slice
 mode is on, macros are reachable, metrics are declared *and* updated, the three essences are
