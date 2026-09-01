@@ -149,7 +149,13 @@
         </section>
 
         <section class="hw-sec" id="hw-redeploy">
-<h2 class="hw-sec-t">${esc(T("sec_deploy", "Réglage qui redéploie"))}</h2>
+          <!-- ★ ON NOMME LE SUJET, PAS LE MÉCANISME — meme regle que la section suivante.
+               Elle s'appelait « Reglage qui redeploie » : le titre annoncait la CONSEQUENCE
+               d'y toucher, ce qui n'aide personne a trouver ce qu'il cherche. Le redeploiement
+               est dit juste dessous, dans l'aide, ou il sert vraiment.
+               ⚠ AUCUN ACCENT GRAVE ICI : ce commentaire vit dans un gabarit JS, ou un accent
+               grave FERME la chaine. -->
+          <h2 class="hw-sec-t">${esc(T("sec_deploy", "Format de sortie"))}</h2>
           <p class="hw-aide">${esc(T("t_aide",
             "Le conteneur lit ce réglage à son DÉMARRAGE : le changer redéploie le plugin (brève coupure)."))}</p>
           <div class="hw-controles">

@@ -54,7 +54,7 @@
   "plugin.hello_world.redeploye": "Réglage appliqué — plugin redéployé",
   "plugin.hello_world.reset": "Valeurs par défaut",
   "plugin.hello_world.sec_chaud": "Labels & Tally",
-  "plugin.hello_world.sec_deploy": "Réglage qui redéploie",
+  "plugin.hello_world.sec_deploy": "Format de sortie",
   "plugin.hello_world.sec_dispo": "Disposition",
   "plugin.hello_world.sec_etat": "État",
   "plugin.hello_world.sec_habillage": "Habillage",
