@@ -23,6 +23,14 @@
   // l'une n'existe pas dans l'autre — la référence LÈVE, et c'est toute la mise à jour d'état
   // qui tombe. (Même piège que la locale orpheline d'un gabarit : `node --check` n'y voit rien.)
   const _ecritureEnCours = new Set();
+  // ★ UN RÉGLAGE APPLIQUÉ À CHAUD SE RELIT CHEZ L'ORCHESTRATEUR, PAS DANS `/state`.
+  // Le conteneur répond avec la configuration qui lui a été remise à SON DÉPLOIEMENT : une
+  // photo, pas un miroir. Tant qu'un réglage redéployait, la photo restait fraîche et personne
+  // ne voyait la différence. Depuis qu'un réglage s'applique à chaud, elle ne l'est plus : on
+  // retire un niveau, la base l'enregistre, et `/state` rend encore l'ancienne liste — la page
+  // se reconstruit dessus et défait le geste. En mode public il n'y a pas d'orchestrateur à
+  // joindre : la page y est en lecture seule, et `/state` suffit.
+  const _persiste = {};
   "use strict";
 
   let EL = null, VMID = null, TOAST = () => {};
@@ -283,6 +291,9 @@
         // flux à chaque case cochée, et l'annoncer jamais cacherait celle qui a vraiment lieu.
         let j = {};
         try { j = await r.json(); } catch (e) { /* réponse sans corps */ }
+        // On note ce que l'orchestrateur vient d'accepter : c'est désormais la vérité, et
+        // `/state` mettra un déploiement à la rattraper — ou ne la rattrapera jamais.
+        _persiste[cle] = valeur;
         TOAST(j && j.redeploye === false
               ? T("applique", "Réglage appliqué")
               : T("redeploye", "Réglage appliqué — plugin redéployé"));
@@ -580,7 +591,11 @@
       fm.value = s.format || "";
     }
     const tc = $("hw-tcol");
-    if (tc && document.activeElement !== tc && s.tally_label_col != null) tc.value = String(s.tally_label_col);
+    const _colVraie = ("tally_label_col" in _persiste) ? _persiste.tally_label_col
+                                                       : s.tally_label_col;
+    if (tc && document.activeElement !== tc && _colVraie != null) tc.value = String(_colVraie);
+    // On préfère la valeur PERSISTÉE quand on l'a : c'est la source de vérité de ce réglage.
+    const _niveauxVrais = ("tally_level" in _persiste) ? _persiste.tally_level : s.tally_level;
     const tn = $("hw-tniv");
     // ⚠ NE PAS REDESSINER TANT QU'UNE ÉCRITURE N'EST PAS PARTIE ET REVENUE. `/state` répond
     // encore l'ANCIENNE valeur pendant le redéploiement : reconstruire le contrôle dessus
@@ -588,12 +603,12 @@
     if (tn && !tn.contains(document.activeElement)
         && !_ecritureEnCours.has("tally_level")) {
       const dispo = (s.tally_levels_dispo || []).map((n) => ({value: n.uuid, label: n.label}));
-      const sig = JSON.stringify([dispo, s.tally_level || []]);
+      const sig = JSON.stringify([dispo, _niveauxVrais || []]);
       if (tn.dataset.sig !== sig) {          // on ne redessine que si quelque chose a bougé
         tn.dataset.sig = sig;
         window.MXLControls.chooseList(tn, {
           options: dispo,
-          valeurs: s.tally_level || [],
+          valeurs: _niveauxVrais || [],
           vide: T("t_niv_vide", "— ceux de la production —"),
           ajouter: T("t_niv_ajout", "+ Ajouter un niveau…"),
           tout: T("t_niv_tout", "tous les niveaux sont choisis"),
@@ -631,13 +646,28 @@
     }
   }
 
+  // Lit les réglages PERSISTÉS une fois au montage. Sans ça, le premier rendu part de la photo
+  // du conteneur, et un réglage changé à chaud depuis une autre session s'afficherait périmé.
+  async function chargerPersistes() {
+    const url = apiConteneur("/plugin_config");
+    if (!url) return;                     // mode public : pas d'orchestrateur à joindre
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return;
+      Object.assign(_persiste, (await r.json()).params || {});
+    } catch (e) { /* l'affichage retombe sur /state, moins frais mais lisible */ }
+  }
+
   function mount(el, vmid, ctx) {
     EL = el; VMID = vmid;
     TOAST = (ctx && ctx.toast) || (() => {});
     BASE = (ctx && ctx.base) || null;
     PUBLIC = !!BASE;
     gabarit();
-    rafraichir();
+    // ⚠ LA VÉRITÉ D'ABORD, LE PREMIER RENDU ENSUITE. Sans cet ordre, le premier affichage part
+    // de la photo du conteneur : un réglage changé à chaud depuis une autre session s'y montre
+    // périmé, et le geste suivant l'écrit à nouveau tel quel.
+    chargerPersistes().finally(() => rafraichir());
     timer = setInterval(rafraichir, 2000);
   }
 
