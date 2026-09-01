@@ -3,7 +3,7 @@
   "type": "hello_world",
   "label": "Hello World",
   "runtime": "docker",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Plugin d'EXEMPLE : incruste « Hello World », un logo et les informations système sur l'image. Il n'existe pas pour sa fonction mais pour montrer le contrat — mode tranche, exposition aux macros, page publique, métriques. Référence exécutable de « Écrire un plugin », vérifiée en CI par tools/verif_plugin_hello_world.py.",
   "badge": {
     "label": "Hello",
@@ -154,7 +154,8 @@
         }
       ],
       "help": "Quelle colonne de la table des sources fournit le texte. ⚠ Lu par l'ORCHESTRATEUR (hook tally_targets), jamais par le conteneur : il s'applique À CHAUD, sans redéployer. Le libellé affiché dans l'image, lui, ne se rafraîchit qu'au prochain déploiement — il est incrusté au démarrage.",
-      "redeploiement": false
+      "redeploiement": false,
+      "scope": "user"
     },
     {
       "key": "tally_level",
@@ -163,7 +164,8 @@
       "default": [],
       "options_from": "tally_levels",
       "help": "Quels niveaux colorent les pastilles — un niveau est une entité NOMMÉE du site (Réglages → Labels & Tally), pas un numéro de bande d'un protocole. Plusieurs choix possibles : le tally se CUMULE, une même source pouvant être suivie sur plusieurs chaînes de destination. Aucun choix = ceux de la production du conteneur. ⚠ Lu par l'ORCHESTRATEUR (hook tally_targets), jamais par le conteneur : il s'applique À CHAUD, sans redéployer. Le libellé affiché dans l'image, lui, ne se rafraîchit qu'au prochain déploiement — il est incrusté au démarrage.",
-      "redeploiement": false
+      "redeploiement": false,
+      "scope": "user"
     }
   ],
   "wiring": {
