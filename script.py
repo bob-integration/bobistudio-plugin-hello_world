@@ -952,6 +952,10 @@ class Metriques(BaseHTTPRequestHandler):
     def do_GET(self):
         with metrics_lock:
             charge = dict(metrics)
+        # Bouches-trous amont ÉCARTÉS (cf. bobimxl.MXL_GRAIN_FLAG_INVALID) : seul témoin du
+        # comblement d'un trou par le producteur — cadence, index et statut de lecture restent
+        # tous parfaits pendant l'épisode. Calculé à la requête : aucun coût par trame.
+        charge["invalid_grains"] = bobimxl.invalid_grains_report()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -1163,6 +1167,7 @@ def _ouvrir(actuel, nom_actuel, voulu, fabrique, libelle):
         return None, None, "waiting"   # the flow is not published yet
 
 
+consecutive_errors = 0   # drives the back-off of the error branch below
 while True:
     try:
         with state_lock:
@@ -1631,25 +1636,63 @@ while True:
 
         if slice_h:
             n = h // slice_h
-            for k in range(1, n + 1):
-                d, f = (k - 1) * slice_h, k * slice_h
-                if lec_v is not None and vue_in is not None and k > 1:
-                    got = lec_v.get_slice(idx, k, timeout_ns=40_000_000)
-                    if got is None:
-                        with metrics_lock:
-                            metrics["slices_incompletes"] += 1
-                        break
-                    courant["p"] = plans(got[2], lyt_in)
-                composer(d, f)
-                # PROGRESSIVE COMMIT: downstream starts on the first band instead of
-                # waiting for the frame. That is the whole gain of slice mode.
-                ecr_v.commit(grain, valid_slices=k)
+            pose = 0                 # lignes RÉELLEMENT composées — lu par le finally
+            try:
+                for k in range(1, n + 1):
+                    d, f = (k - 1) * slice_h, k * slice_h
+                    if lec_v is not None and vue_in is not None and k > 1:
+                        got = lec_v.get_slice(idx, k, timeout_ns=40_000_000)
+                        if got is None:
+                            with metrics_lock:
+                                metrics["slices_incompletes"] += 1
+                            # Band k never arrived: a timeout, or an upstream gap-filler grain
+                            # dropped by bobimxl (MXL_GRAIN_FLAG_INVALID). Compose the remaining
+                            # lines from the last source band we did get - one frame of slight
+                            # tearing - rather than leaving the output grain PARTIAL. A grain
+                            # committed below totalSlices is never readable by a whole-frame
+                            # consumer, so the band it stopped on would silently become the
+                            # frame nobody downstream can see. Same guarantee as the `delay`
+                            # plugin, which carries this contract in a finally.
+                            composer(d, h)
+                            pose = h
+                            break
+                        courant["p"] = plans(got[2], lyt_in)
+                    composer(d, f)
+                    pose = f
+                    # PROGRESSIVE COMMIT: downstream starts on the first band instead of
+                    # waiting for the frame. That is the whole gain of slice mode.
+                    # ⚠ NOT the last band: libmxl 1.1.0 closes a grain as soon as
+                    # validSlices == totalSlices, and the final commit below would then
+                    # fail with MXL_ERR_INVALID_ARG on EVERY frame (measured 2026-10-16 on
+                    # dl360-1: one exception per frame, outputs re-created once a second).
+                    # Same guard as delay, stills, stream_in, split and mixer.
+                    if k < n:
+                        ecr_v.commit(grain, valid_slices=k)
+            finally:
+                # COMPLETE BEFORE PUBLISHING. An exception mid-frame (composer, get_slice, a
+                # source plane) leaves lines `pose`..h NEVER WRITTEN. Committing the grain as
+                # COMPLETE would then serve the ring slot's STALE CONTENT - the picture from
+                # `grainCount` grains ago - at full confidence, which is exactly the defect
+                # bobimxl drops on the read side (MXL_GRAIN_FLAG_INVALID). Background is a
+                # signal; stale is a lie. Same pattern as `mixer`, which fills with black.
+                if pose < h:
+                    try:
+                        oy[pose:] = fy_b
+                        ou[pose // lyt_out["ch"]:] = fu
+                        ov_u[pose // lyt_out["ch"]:] = fv
+                    except Exception:
+                        pass
+                # FINAL COMMIT, ALWAYS: marks the grain complete (validSlices == totalSlices).
+                # A grain left partial is NEVER readable by a whole-frame consumer (getGrain
+                # gives OUT_OF_RANGE_TOO_EARLY), so the index would advance over a permanent hole.
+                ecr_v.commit(grain)
         else:
             composer(0, h)
             ecr_v.commit(grain)
 
         dernier_idx = idx
         frame_index += 1
+        consecutive_errors = 0
         dt = time.time() - _fps_t0
         with metrics_lock:
             metrics["frame_index"] = frame_index
@@ -1692,10 +1735,22 @@ while True:
         # ★ An exception must NEVER kill the loop: the container would restart
         # endlessly, and the operator would read "restarted" in the alerts without
         # ever reading WHY.
-        log("erreur : %r" % (e,), "error")
+        consecutive_errors += 1
+        retry_s = min(30.0, 2.0 ** (consecutive_errors - 1))
+        log("erreur : %r (retry in %.0f s, failure #%d in a row)"
+            % (e, retry_s, consecutive_errors), "error")
+        # CLOSE, do not just drop: a writer has no finaliser, so a dropped one keeps its
+        # handle and its mappings. And BACK OFF: an error that comes back on every frame
+        # turned this loop into a 1 Hz writer factory, and each audio writer re-created
+        # on an existing flow leaks a ~600 KB temporary directory in libmxl 1.1.0 —
+        # 47 GB of /dev/shm filled in 21 hours on dl360-1 (2026-10-12 → 13).
+        for _o in (lec_v, lec_a, lec_d, ecr_v, ecr_a, ecr_d):
+            try:
+                if _o is not None: _o.close()
+            except Exception: pass
         lec_v = lec_a = lec_d = None
         nom_v = nom_a = nom_d = None
         ecr_v = ecr_a = ecr_d = None
         fmt = None
         dernier_idx = None
-        time.sleep(1.0)
+        time.sleep(retry_s)
