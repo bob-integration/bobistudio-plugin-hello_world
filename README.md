@@ -73,7 +73,7 @@ Then follow the main loop — it is the shape every plugin has.
   documented exception to "no plugin code in the controller".
 - `control.js` / `control.css` / `control.html` — the console. Controls come from the shared
   catalogue (`window.MXLControls`), the layout editor from the shared engine
-  (`window.MXLLayout`); neither is reimplemented here.
+  (`window.BobiEditor.layout`); neither is reimplemented here.
 - `plugin.json` — the manifest: wiring, config schema, macro surface, control endpoints.
 - `help.md` / `help.fr.md` — the article the product's Help page builds from this plugin.
 

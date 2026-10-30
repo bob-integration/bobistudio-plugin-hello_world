@@ -74,7 +74,7 @@ Suivez ensuite la boucle principale — c'est la forme qu'a tout plugin.
   l'unique exception documentée à la règle « aucun code de plugin dans le contrôleur ».
 - `control.js` / `control.css` / `control.html` — la console. Les contrôles viennent du
   catalogue partagé (`window.MXLControls`), l'éditeur de disposition du moteur partagé
-  (`window.MXLLayout`) ; ni l'un ni l'autre n'est réécrit ici.
+  (`window.BobiEditor.layout`) ; ni l'un ni l'autre n'est réécrit ici.
 - `plugin.json` — le manifeste : câblage, schéma de configuration, surface de macros, endpoints
   de contrôle.
 - `help.md` / `help.fr.md` — l'article que la page Aide du produit fabrique depuis ce plugin.

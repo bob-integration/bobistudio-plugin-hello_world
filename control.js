@@ -347,7 +347,7 @@
 
   // ── LAYOUT EDITOR ─────────────────────────────────────────────────────────
   // ★ THE GEOMETRY IS NOT WRITTEN HERE. Align, equalise, distribute and snap live
-  // in `window.MXLLayout` (static/js/layout_engine.js), shared with the product's
+  // in `window.BobiEditor.layout` (static/js/editor.js), shared with the product's
   // other editors. Four copies of the same truth table had already diverged —
   // three of them missed the same case. A plugin copying those functions would
   // make the fifth: we CALL, we do not rewrite.
@@ -428,7 +428,7 @@
       const ic = (nom) => I[nom] || "?";
       const appliquer = (out, faute) => {
         if (!out) { TOAST(faute); return; }
-        LAY.rects = out.map(window.MXLLayout.borner);
+        LAY.rects = out.map(window.BobiEditor.layout.borner);
         dessinerLay();
         envoyerDispo();
       };
@@ -438,12 +438,12 @@
         if (!LAY.sel.length) { TOAST(T("lay_sel1", "Sélectionnez un élément.")); return; }
         // With only ONE selected, the reference is the FRAME: that is what lets you
         // centre an element without having a second one to hand.
-        appliquer(window.MXLLayout.aligner(LAY.rects, LAY.sel, LAY.primaire, mode), sel2);
+        appliquer(window.BobiEditor.layout.aligner(LAY.rects, LAY.sel, LAY.primaire, mode), sel2);
       };
       const eq = (mode) => () => appliquer(
-        window.MXLLayout.egaliser(LAY.rects, LAY.sel, LAY.primaire, mode), sel2);
+        window.BobiEditor.layout.egaliser(LAY.rects, LAY.sel, LAY.primaire, mode), sel2);
       const di = (axe) => () => appliquer(
-        window.MXLLayout.distribuer(LAY.rects, LAY.sel, axe), sel3);
+        window.BobiEditor.layout.distribuer(LAY.rects, LAY.sel, axe), sel3);
       zo.appendChild(window.MXLControls.toolGroup(T("lay_aligner", "Aligner"), [
         [ic("align_left"), T("al_l", "Bords gauches"), al("left")],
         [ic("align_hcenter"), T("al_hc", "Centres horizontaux"), al("hcenter")],
@@ -470,7 +470,7 @@
     sc.addEventListener("pointerdown", (e) => {
       const b = e.target.closest(".hw-lay-box");
       const i = b ? Number(b.dataset.i) : null;
-      const s = window.MXLLayout.sélection(LAY.sel, LAY.primaire, i, e);
+      const s = window.BobiEditor.layout.sélection(LAY.sel, LAY.primaire, i, e);
       LAY.sel = s.sel; LAY.primaire = s.primaire;
       if (i == null || PUBLIC) { dessinerLay(); return; }
       LAY.drag = {
@@ -492,21 +492,21 @@
       const dy = (e.clientY - d.y0) / (d.cadre.height || 1);
       const o = d.dep[d.i];
       if (d.redim) {
-        LAY.rects[d.i] = window.MXLLayout.borner({ ...o, w: o.w + dx, h: o.h + dy });
+        LAY.rects[d.i] = window.BobiEditor.layout.borner({ ...o, w: o.w + dx, h: o.h + dy });
         LAY.guides = [];
       } else {
         // ★ THE TOLERANCE IS OURS, NOT THE ENGINE'S. It reasons in normalised units
         // and deliberately ignores the canvas size; we alone know how many pixels
         // count as "close enough to stick".
         const tol = 8 / (d.cadre.width || 1);
-        const a = window.MXLLayout.aimanter(d.dep, LAY.sel, o.x + dx, o.y + dy, o.w, o.h, tol);
+        const a = window.BobiEditor.layout.aimanter(d.dep, LAY.sel, o.x + dx, o.y + dy, o.w, o.h, tol);
         LAY.guides = a.guides;
         const ax = a.x - o.x, ay = a.y - o.y;
         // A multiple selection moves as one block: snapping applies to the element
         // GRABBED, the others follow by the same vector.
         LAY.sel.forEach((k) => {
           const s0 = d.dep[k];
-          LAY.rects[k] = window.MXLLayout.borner({ ...s0, x: s0.x + ax, y: s0.y + ay });
+          LAY.rects[k] = window.BobiEditor.layout.borner({ ...s0, x: s0.x + ax, y: s0.y + ay });
         });
       }
       dessinerLay();

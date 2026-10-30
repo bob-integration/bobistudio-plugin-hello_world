@@ -132,7 +132,7 @@ TALLY_COULEURS = {{
 # ─── Layout: three normalised rectangles ────────────────────────────────────
 # Every element is {{x, y, w, h}} as a fraction of the frame, 0..1. Same
 # convention as the product's other editors (multiview, PiP, split) and as the
-# shared engine `static/js/layout_engine.js` — so a layout reads from one editor
+# shared engine `static/js/editor.js` — so a layout reads from one editor
 # to the next with no conversion.
 DISPO_DEFAUT = {{
     "pip":     {{"x": 0.74, "y": 0.74, "w": 0.25, "h": 0.26}},
