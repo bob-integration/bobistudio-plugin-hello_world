@@ -1,6 +1,66 @@
 {
-  "version": "0.1.0",
+  "version": "0.10.4",
   "changelog": [
+    {
+      "version": "0.10.4",
+      "date": "2026-10-25",
+      "notes": "`index_ahead` publié sur :8080, via bobimxl.index_report. `grid_ms` = l'instant du dernier index écrit moins l'heure TAI, en millisecondes signées, positif pour un index dans le futur. Même règle pour toute la flotte : un plugin qui écrit en avance de la grille se constate.\n\nLes entrées 0.2.0 à 0.10.4 ont été RECONSTITUÉES le 2026-11-01 depuis les messages de commit qui ont posé chaque version : le journal de cet exemple était resté à 0.1.0 pendant douze versions. Garde : tests/verif_journaux_versions.py."
+    },
+    {
+      "version": "0.10.3",
+      "date": "2026-10-16",
+      "notes": "★ COMPLÉTER AVANT DE PUBLIER (mode tranche). Le `finally` commitait le grain COMPLET sans condition. Sur le chemin d'exception, les lignes restantes n'avaient jamais été écrites : le grain partait annoncé complet avec des lignes jamais remplies. Le plugin étant le MODÈLE que les autres copient, le défaut se recopiait. Garde du commit progressif et palier de reprise."
+    },
+    {
+      "version": "0.10.1",
+      "date": "2026-09-01",
+      "notes": "La section s'appelle « Format de sortie ». « Réglage qui redéploie » nommait la CONSÉQUENCE d'y toucher, pas le sujet. Le redéploiement reste dit, mais dans l'aide juste dessous, où il sert."
+    },
+    {
+      "version": "0.10.0",
+      "date": "2026-09-01",
+      "notes": "La section s'appelle « Labels & Tally », et non « appliqués à chaud » — un nom de mécanisme, pas de sujet, et trompeur puisque d'autres réglages de la page s'appliquent aussi à chaud. Le produit emploie déjà « Labels & Tally » dans ses Réglages : on emploie le MÊME terme, sinon l'exploitant apprend deux vocabulaires pour une seule chose."
+    },
+    {
+      "version": "0.9.0",
+      "date": "2026-09-01",
+      "notes": "Les puces sortent du `<label>`. Un `<label>` sans `for` renvoie tout clic vers le premier élément labelable qu'il contient — ici la croix de la première puce : cliquer dans le vide à côté d'une puce supprimait le premier niveau. Un `<label>` convient à un champ unique, pas à une liste d'actions."
+    },
+    {
+      "version": "0.8.0",
+      "date": "2026-09-01",
+      "notes": "Les réglages à chaud se relisent chez l'ORCHESTRATEUR, pas dans `/state`. `/state` rend la configuration remise au conteneur À SON DÉPLOIEMENT : une photo, pas un miroir. Tant qu'un réglage redéployait, la photo restait fraîche ; depuis qu'un réglage s'applique à chaud, elle ne l'est plus — on retirait un niveau, la base l'enregistrait, et `/state` rendait encore l'ancienne liste."
+    },
+    {
+      "version": "0.7.0",
+      "date": "2026-09-01",
+      "notes": "Le tally et le libellé quittent le panneau ⚙. Le panneau et la palette sont pour ce qu'on règle en INSTALLANT (format de sortie, niveau de journal, mode tranche) ; un niveau de tally et un libellé de source sont des gestes d'EXPLOITATION, qui se font sur la page du plugin, là où l'on voit ce qu'ils changent."
+    },
+    {
+      "version": "0.6.0",
+      "date": "2026-09-01",
+      "notes": "Deux sections, parce que ce sont deux comportements. La page rangeait les trois réglages sous « Réglages qui redéploient » : faux pour deux d'entre eux, et décourageant — personne ne coche une case si l'écran annonce une coupure de flux."
+    },
+    {
+      "version": "0.5.0",
+      "date": "2026-09-01",
+      "notes": "Le niveau de tally s'applique À CHAUD. Il est lu par l'orchestrateur — distributeur TSL, hook `tally_targets`, qui relit `deploy_config` à chaque tour — jamais par le conteneur. Redéployer pour ça coupait un flux vidéo pour changer une case."
+    },
+    {
+      "version": "0.4.0",
+      "date": "2026-09-01",
+      "notes": "★ Une rafale de choix perdait des niveaux EN SILENCE. Le contrôle était juste ; le défaut était dans l'aller-retour. Chaque écriture de réglage redéployait le conteneur, et l'orchestrateur refuse un second déploiement tant que le premier est en vol (409) : une sélection multiple rapide voyait donc ses écritures refusées sans que rien ne le dise."
+    },
+    {
+      "version": "0.3.0",
+      "date": "2026-09-01",
+      "notes": "La PAGE aussi choisit plusieurs niveaux. Le manifeste était passé en multi-sélection et j'en avais conclu que le point était fait — faux : la page du plugin a son propre sélecteur, resté mono et alimenté par une liste figée `[0, 1, 2, 3, 4]` recopiée dans le JavaScript."
+    },
+    {
+      "version": "0.2.0",
+      "date": "2026-08-31",
+      "notes": "L'exemple montre des niveaux NOMMÉS, et plusieurs. Le tally se cumule : une source peut être suivie sur plusieurs chaînes de destination à la fois. Le champ était un `select` scalaire aux options figées au manifeste — un choix unique là où il en faut plusieurs, et une liste qui dérive dès qu'une production nomme ses niveaux autrement."
+    },
     {
       "version": "0.1.0",
       "date": "2026-08-29",
