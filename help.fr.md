@@ -54,7 +54,7 @@ qu'on le paie.
 
 ## Garde-fou
 
-`tools/verif_plugin_hello_world.py` vérifie en intégration continue que cet exemple honore
+`tests/verif_plugin_hello_world.py` vérifie en intégration continue que cet exemple honore
 toujours les points ci-dessus. Si le contrat évolue sans que l'exemple suive, **la CI échoue** —
 c'est ce qui l'empêche de devenir une documentation périmée que plus personne n'exécute.
 

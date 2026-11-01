@@ -51,7 +51,7 @@ before you pay for it.
 
 ## The guard rail
 
-`tools/verif_plugin_hello_world.py` checks in continuous integration that this example still
+`tests/verif_plugin_hello_world.py` checks in continuous integration that this example still
 honours the points above. If the contract evolves and the example does not follow, **CI fails** —
 which is what stops it becoming stale documentation nobody executes any more.
 
