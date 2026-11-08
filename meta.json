@@ -1,6 +1,11 @@
 {
-  "version": "0.10.4",
+  "version": "0.10.5",
   "changelog": [
+    {
+      "version": "0.10.5",
+      "date": "2026-11-08",
+      "notes": "Exemple de `control.onair` : `GET /onair` rend ce qui est à l'antenne (texte, fond, incrustation, PiP) avec une `version`, `POST /onair` le réapplique en bloc et refuse en 400 une version ou une couleur inconnue. L'orchestrateur l'enregistre à l'arrêt du projet et le renvoie au démarrage si l'opérateur le demande, ou après une relance sur plantage."
+    },
     {
       "version": "0.10.4",
       "date": "2026-10-25",

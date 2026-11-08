@@ -29,6 +29,7 @@ orchestrator, agent, MXL bus, metrics.
 | Observability metrics | `slice_mode`, `own_latency_ms`, `source`, `slices_incompletes` — not just `fps` |
 | Recovery from SIGBUS and a re-created flow | `_sigbus` handler and the recovery loop |
 | Public page | `ui.public_page`, the console honours `ctx.base` |
+| On-air state | `control.onair`, `/onair`: saved when the project stops, resumed at start or after a crash |
 
 ## Settings
 

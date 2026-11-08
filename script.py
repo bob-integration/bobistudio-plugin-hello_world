@@ -226,6 +226,10 @@ _CABLAGES = ("input_shm", "audio_shm", "anc_shm")
 # script where to read it.
 _CHAMP_PAR_ESSENCE = {{"video": "input_shm", "audio": "audio_shm", "data": "anc_shm"}}
 _DEFAUTS = {{k: v for k, v in state.items() if k not in _CABLAGES}}
+# What /onair saves and puts back. NOT the layout or the format: those are settings, kept by the
+# project with the configuration — resuming them here would undo a setting changed since.
+ONAIR_VERSION = 1
+_ONAIR_KEYS = ("texte", "fond", "overlay_on", "pip_on")
 
 # ─── Tally and live labels (TSL service) ────────────────────────────────────
 # ⚠ THE SERVICE PUSHES ON PORT 8080 — the METRICS port, not the control one. A
@@ -1026,6 +1030,14 @@ class Controle(BaseHTTPRequestHandler):
             # script that applies it.
             return self._repondre(200, {{"dispo": d, "defaut": DISPO_DEFAUT,
                                         "tranchable": pip_tranchable(d["pip"])}})
+        if chemin == "/onair":
+            # ★ ON-AIR STATE (`control.onair`): what is ON AIR, not the configuration. The
+            # orchestrator reads it when the project stops (and regularly if the project asks)
+            # and posts it back after a start or after a crash restart. It never looks inside:
+            # the document is ours, so it carries a version we can refuse later.
+            with state_lock:
+                return self._repondre(200, {{"version": ONAIR_VERSION,
+                                            **{{k: state[k] for k in _ONAIR_KEYS}}}})
         if chemin == "/couleurs":
             # ★ LIVE LIST for the macro editor (`options_endpoint`). An action with
             # choices does not freeze its values in the manifest: the day a colour is
@@ -1052,6 +1064,23 @@ class Controle(BaseHTTPRequestHandler):
                     state["fond"] = data["fond"]
                 if "coefficient_omega" in data:
                     state["coefficient_omega"] = float(data["coefficient_omega"])
+            return self._repondre(200, {{"ok": True}})
+
+        if chemin == "/onair":
+            # ⚠ 4xx = REFUSED for good, the orchestrator does not retry: an unknown version or a
+            # value we no longer accept. Apply ALL or NOTHING — a half-applied state is a state
+            # nobody had on air.
+            if data.get("version") != ONAIR_VERSION:
+                return self._repondre(400, {{"error": "version d'état inconnue",
+                                            "attendue": ONAIR_VERSION}})
+            if data.get("fond") not in FONDS:
+                return self._repondre(400, {{"error": "couleur inconnue", "connues": list(FONDS)}})
+            with state_lock:
+                state["texte"] = str(data.get("texte", state["texte"]))[:64]
+                state["fond"] = data["fond"]
+                state["overlay_on"] = bool(data.get("overlay_on", True))
+                state["pip_on"] = bool(data.get("pip_on", True))
+            log("état d'antenne repris", "info")
             return self._repondre(200, {{"ok": True}})
 
         if chemin == "/fond":

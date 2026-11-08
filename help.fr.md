@@ -32,6 +32,7 @@ accompagnée du *pourquoi* et de ce qui casse **en silence** si on l'ignore.
 | Métriques d'observabilité | `slice_mode`, `own_latency_ms`, `source`, `slices_incompletes` — pas seulement `fps` |
 | Reprise sur SIGBUS et flux recréé | gestionnaire `_sigbus` et boucle de reprise |
 | Page publique | `ui.public_page`, la console honore `ctx.base` |
+| État d'antenne | `control.onair`, `/onair` : enregistré à l'arrêt du projet, repris au démarrage ou après un plantage |
 
 ## Réglages
 

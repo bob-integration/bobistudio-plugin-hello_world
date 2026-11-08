@@ -42,6 +42,7 @@ ports, and still reports a perfect frame rate.
 | Observability metrics | `slice_mode`, `own_latency_ms`, `slices_incompletes`, … |
 | Recovery from SIGBUS and a re-created flow | `_sigbus` and the recovery loop |
 | Public read-only page | `ui.public_page`, the console honours `ctx.base` |
+| On-air state saved at stop, resumed at start | `control.onair`, `GET`/`POST /onair` with a `version` |
 
 It reads video, audio and ANC, and re-emits all three — the wiring case where mistakes cost the
 most (silent audio, lost ANC, one input mistaken for another).

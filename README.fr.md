@@ -42,6 +42,7 @@ ses deux ports, et affiche encore une cadence parfaite.
 | Métriques d'observabilité | `slice_mode`, `own_latency_ms`, `slices_incompletes`, … |
 | Reprise sur SIGBUS et flux recréé | `_sigbus` et la boucle de reprise |
 | Page publique en lecture seule | `ui.public_page`, la console honore `ctx.base` |
+| État d'antenne enregistré à l'arrêt, repris au démarrage | `control.onair`, `GET`/`POST /onair` avec une `version` |
 
 Il lit de la vidéo, de l'audio et de l'ANC, et republie les trois — le cas de câblage où les
 erreurs coûtent le plus cher (audio muet, ANC perdu, une entrée prise pour une autre).
