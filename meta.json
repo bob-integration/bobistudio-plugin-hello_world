@@ -1,6 +1,11 @@
 {
-  "version": "0.10.5",
+  "version": "0.10.6",
   "changelog": [
+    {
+      "version": "0.10.6",
+      "date": "2026-11-09",
+      "notes": "Le manifeste déclare `requires.core_min` = 0.9.11 : l'orchestrateur refuse de l'installer sur un cœur plus ancien et le dit. Valeur = le cœur avec lequel la version précédente a été faite. Rien ne change dans le conteneur : rien à redéployer."
+    },
     {
       "version": "0.10.5",
       "date": "2026-11-08",
